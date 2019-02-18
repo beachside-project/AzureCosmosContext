@@ -1,10 +1,11 @@
-﻿using AzureCosmosContext.Options;
+﻿using AzureCosmosContext;
+using AzureCosmosContext.Options;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace AzureCosmosContext.Extensions
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class CosmosContextExtensions
     {
