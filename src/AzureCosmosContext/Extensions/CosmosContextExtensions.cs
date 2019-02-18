@@ -26,7 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 cosmosOptions.Validate();
 
                 var connectionString = configuration.GetSection("cosmosDbConnectionString").Get<string>();
-
+                ValidateNotNull(connectionString, "cosmosDbConnectionString");
                 var config = new CosmosConfiguration(connectionString);
 
                 // ConnectionPolicy のDefault値は、SDKのConnectionPolicy.csで設定されています。
