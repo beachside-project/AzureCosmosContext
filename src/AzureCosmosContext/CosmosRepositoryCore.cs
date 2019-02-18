@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace AzureCosmosContext
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    ///<remarks>
+    /// CosmosRepositoryCore クラスでは1 Database, N Container を管理し、
+    /// 継承するクラスでは、1 repository に 1 Container のみ利用する想定。
+    ///</remarks>
     public abstract class CosmosRepositoryCore
     {
         private readonly CosmosContext _context;
@@ -18,10 +25,11 @@ namespace AzureCosmosContext
         {
             _context = context;
             _logger = logger;
+            ValidateContainerId();
         }
 
         /// <summary>
-        /// Itemの作成
+        /// Crate a Item.
         /// </summary>
         /// <typeparam name="TItem"></typeparam>
         /// <param name="partitionKey"></param>
@@ -30,11 +38,11 @@ namespace AzureCosmosContext
         protected virtual async Task CreateItemAsync<TItem>(object partitionKey, TItem item)
         {
             var response = await _context.Containers[ContainerId].Items.CreateItemAsync(partitionKey, item);
-            LogRequestCharge(response.RequestCharge);
+            LogRequestCharge(response);
         }
 
         /// <summary>
-        /// Itemの更新
+        /// Update a Item.
         /// </summary>
         /// <typeparam name="TItem"></typeparam>
         /// <param name="partitionKey"></param>
@@ -44,11 +52,11 @@ namespace AzureCosmosContext
         protected virtual async Task UpdateItemAsync<TItem>(object partitionKey, string itemId, TItem item)
         {
             var response = await _context.Containers[ContainerId].Items.ReplaceItemAsync(partitionKey, itemId, item);
-            LogRequestCharge(response.RequestCharge);
+            LogRequestCharge(response);
         }
 
         /// <summary>
-        /// ItemのUpsert
+        /// Upsert a Item
         /// </summary>
         /// <typeparam name="TItem"></typeparam>
         /// <param name="partitionKey"></param>
@@ -57,11 +65,11 @@ namespace AzureCosmosContext
         protected virtual async Task UpsertItemAsync<TItem>(object partitionKey, TItem item)
         {
             var response = await _context.Containers[ContainerId].Items.UpsertItemAsync(partitionKey, item);
-            LogRequestCharge(response.RequestCharge);
+            LogRequestCharge(response);
         }
 
         /// <summary>
-        /// Itemの削除
+        /// Delete a Item
         /// </summary>
         /// <typeparam name="TItem"></typeparam>
         /// <param name="partitionKey"></param>
@@ -70,26 +78,26 @@ namespace AzureCosmosContext
         protected virtual async Task DeleteItemAsync<TItem>(object partitionKey, string itemId)
         {
             var response = await _context.Containers[ContainerId].Items.DeleteItemAsync<TItem>(partitionKey, itemId);
-            LogRequestCharge(response.RequestCharge);
+            LogRequestCharge(response);
         }
 
         /// <summary>
-        /// Idを検索キーにして単一のItemを取得
+        /// Get a Item by Id
         /// </summary>
         /// <typeparam name="TItem"></typeparam>
         /// <param name="partitionKey"></param>
         /// <param name="itemId"></param>
         /// <returns></returns>
-        protected virtual async Task<TItem> GetItemByIdAsync<TItem>( object partitionKey, string itemId)
+        protected virtual async Task<TItem> GetItemByIdAsync<TItem>(object partitionKey, string itemId)
         {
             var response = await _context.Containers[ContainerId].Items.ReadItemAsync<TItem>(partitionKey, itemId);
-            LogRequestCharge(response.RequestCharge);
+            LogRequestCharge(response);
 
             return response.Resource;
         }
 
         /// <summary>
-        /// Sql Queryで複数のItemを取得
+        /// Get Items by SqlQuery
         /// </summary>
         /// <typeparam name="TItem"></typeparam>
         /// <param name="query"></param>
@@ -106,13 +114,13 @@ namespace AzureCosmosContext
                 var response = await set.FetchNextSetAsync();
                 items.AddRange(response);
             }
-            // TODO: total RC logging
+            // TODO: logging total RC 
 
             return items;
         }
 
         /// <summary>
-        /// Predicateで複数のItemを取得
+        /// Get Items by Predicate
         /// </summary>
         /// <typeparam name="TItem"></typeparam>
         /// <param name="predicate"></param>
@@ -123,18 +131,27 @@ namespace AzureCosmosContext
             throw new NotImplementedException();
         }
 
-        protected void ValidateContainerId(string containerId)
+
+        private void ValidateContainerId()
         {
-            if (!_context.ContainerIds.Contains(containerId))
+            if (string.IsNullOrWhiteSpace(ContainerId))
             {
-                _logger.LogCritical("Repository Container definition invalid({containerId})", containerId);
-                throw new ArgumentException("Repository Container definition invalid({containerId})", containerId);
+                _logger.LogCritical("Repository's Container definition invalid(null or empty)");
+                throw new ArgumentNullException(ContainerId);
+            }
+
+            if (!_context.ContainerIds.Contains(ContainerId))
+            {
+                _logger.LogCritical("Repository's Container definition invalid({containerId})", ContainerId);
+                throw new ArgumentOutOfRangeException(ContainerId);
             }
         }
 
-        private void LogRequestCharge(double rc)
+        private void LogRequestCharge<TItem>(CosmosItemResponse<TItem> response)
         {
-            // TODO: log RC
+            // 暫定で、とりあえずログ出してるのみ。
+            // TODO: App Insights の custom metric に組み込むとか、呼び出しのメソッド名出すとか？もしくはメソッドコール時にログ出して App insights のタイムラインで確認する？
+            _logger.LogInformation("Request Charge log: {DatabaseId}.{ContainerId};  ActivityId:{ActivityId}; RC: {RequestCharge};", _context.Database.Id, ContainerId, response.ActivityId, response.RequestCharge);
         }
 
         protected async Task UpdateDatabaseRequestCharge(int throughput)

@@ -48,6 +48,7 @@ namespace AzureCosmosContext.Extensions
             });
 
             services.AddSingleton<CosmosContext>();
+
             return services;
         }
     }

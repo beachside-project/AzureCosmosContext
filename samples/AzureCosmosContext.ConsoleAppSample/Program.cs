@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using AzureCosmosContext.Extensions;
+﻿using AzureCosmosContext.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,24 +14,26 @@ namespace AzureCosmosContext.ConsoleAppSample
             var builder = new HostBuilder()
                 .ConfigureHostConfiguration(config =>
                 {
+                    // Console App の環境変数 "NETCORE_ENVIRONMENT" に "Development" を設定している前提。
                     config.AddEnvironmentVariables("NETCORE_");
                 })
                 .ConfigureAppConfiguration((hostContext, config) =>
                 {
-
                     var env = hostContext.HostingEnvironment;
 
                     config.AddJsonFile("appsettings.json", optional: true)
-                        .AddJsonFile("appsettings." + hostContext.HostingEnvironment.EnvironmentName + ".json", true, true);
+                          .AddJsonFile("appsettings." + hostContext.HostingEnvironment.EnvironmentName + ".json", true, true);
 
                     if (hostContext.HostingEnvironment.IsDevelopment())
                     {
-                        // use userSecrets if need. 
+                        // use userSecrets if need.
                     }
                     else
                     {
+                        // サンプルなので、ローカルの開発環境だと環境変数を読み込まない設定にしてる
                         config.AddEnvironmentVariables();
                     }
+
                     if (args != null)
                     {
                         config.AddCommandLine(args);
@@ -51,6 +52,8 @@ namespace AzureCosmosContext.ConsoleAppSample
                     logging.AddConsole();
                     logging.AddDebug();
                 });
+
+            // TODO: warmup CosmosContext (instantiate CosmosContext.)
 
             await builder.RunConsoleAsync();
         }

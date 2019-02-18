@@ -39,13 +39,12 @@ namespace AzureCosmosContext
             if (_cosmosDbOptions.NeedCreateIfExist)
             {
                 await InitializeCosmosDbAsync();
-                await CacheContainersAsync();
             }
             else
             {
                 await CacheDatabaseAsync();
-                await CacheContainersAsync();
             }
+            await CacheContainersAsync();
         }
 
         private async Task InitializeCosmosDbAsync()
