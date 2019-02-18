@@ -1,5 +1,8 @@
-﻿using AzureCosmosContext;
+﻿using System;
+using System.Diagnostics;
+using AzureCosmosContext;
 using AzureCosmosContext.Options;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -11,6 +14,9 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddCosmosContext(this IServiceCollection services, IConfiguration configuration)
         {
+            ValidateNotNull(services, nameof(services));
+            ValidateNotNull(configuration, nameof(configuration));
+
             services.AddOptions();
             services.Configure<CosmosOptions>(configuration.GetSection("cosmosOptions"));
 
@@ -51,6 +57,21 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<CosmosContext>();
 
             return services;
+        }
+
+        public static IApplicationBuilder UseCosmosContext(this IApplicationBuilder app)
+        {
+            ValidateNotNull(app, nameof(app));
+
+            // 初回起動時の遅延対策として、アプリ起動時にインスタンス化してCosmos DBと接続
+            app.ApplicationServices.GetService<CosmosContext>();
+            return app;
+        }
+
+        [DebuggerStepThrough]
+        private static void ValidateNotNull<T>(T value, string name) where T : class
+        {
+            if (value == null) throw new ArgumentNullException(name);
         }
     }
 }

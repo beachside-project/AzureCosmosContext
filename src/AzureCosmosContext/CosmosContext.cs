@@ -11,7 +11,7 @@ using AzureCosmosContext.Extensions;
 
 namespace AzureCosmosContext
 {
-    // TODO: 暫定で Database は一つしか使わない前提で実装。
+    // 現時点では、Database は一つしか使わない前提。
     public class CosmosContext
     {
         private const string MessageOfDatabaseNotExists = "Database instance does not found!(DatabaseId: {DatabaseId})";
@@ -49,11 +49,12 @@ namespace AzureCosmosContext
 
         private async Task InitializeCosmosDbAsync()
         {
+            // appsettings の DefaultThroughput は Database の Throughput へ設定  
             var databaseResponse = await _cosmosClient.Databases.CreateDatabaseIfNotExistsAsync(_cosmosDbOptions.DatabaseId, _cosmosDbOptions.DefaultThroughput);
             Database = databaseResponse;
 
             var dbThroughput = await Database.ReadProvisionedThroughputAsync();
-            _logger.LogDebug($"Database:{Database.Id}; throughput:{dbThroughput}");
+            _logger.LogInformation($"Database:{Database.Id}; throughput:{ConvertThroughputLogString(dbThroughput)}");
 
             await _cosmosDbOptions.CosmosContainerOptions
                 .Select(async op => await CreateContainerIfNotExistsAsync(op))
@@ -64,9 +65,11 @@ namespace AzureCosmosContext
 
         private async Task CreateContainerIfNotExistsAsync(CosmosContainerOptions options)
         {
+            // TODO: Container単位のDefaultThroughputの実装
             CosmosContainer container = await Database.Containers.CreateContainerIfNotExistsAsync(options.ToCosmosContainerSettings());
             var throughput = await container.ReadProvisionedThroughputAsync();
-            _logger.LogDebug($"Container:{container}; throughput:{throughput}");
+
+            _logger.LogInformation($"Container:{container}; throughput:{ConvertThroughputLogString(throughput)}");
         }
 
         private async Task CacheDatabaseAsync()
@@ -102,6 +105,8 @@ namespace AzureCosmosContext
 
             Containers = Database.Containers;
         }
+
+        private static string ConvertThroughputLogString(int? throughput) => throughput == null ? "No Setting" : throughput.ToString();
 
         private bool IsValidContainersSetting() => _cosmosDbOptions.CosmosContainerOptions.All(options => ContainerIds.Contains(options.ContainerId));
     }
