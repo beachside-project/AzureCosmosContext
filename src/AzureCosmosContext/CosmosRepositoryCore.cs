@@ -111,10 +111,10 @@ namespace AzureCosmosContext
             var items = new List<TItem>();
             while (set.HasMoreResults)
             {
-                var response = await set.FetchNextSetAsync();
+                CosmosQueryResponse<TItem> response = await set.FetchNextSetAsync();
                 items.AddRange(response);
             }
-            // TODO: logging total RC 
+            // TODO: logging total RC.There is this issue: https://github.com/Azure/azure-cosmos-dotnet-v3/issues/21
 
             return items;
         }
