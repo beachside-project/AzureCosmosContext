@@ -15,23 +15,26 @@ This library need following appsettings.json.
     "currentRegion": "",
     "databaseId": "SampleDb",
     "defaultThroughput": 400,
-    "needCreateIfExist": true,
+    "needCreateIfExist": false,
     "throttlingRetryOptions": {
       "maxRetryWaitTimeInSeconds": 1,
       "numberOfRetries": 3
     },
     "cosmosContainerOptions": [
       {
-        "containerId": "itemContainer",
-        "partitionKey": "/itemCategory"
-      },
-      {
-        "containerId": "carContainer",
-        "partitionKey": "/carCategory"
+        "containerId": "items",
+        "partitionKey": "/division",
+        "uniqueKeys": [ "/companyId", "/employeeId" ]
       }
     ]
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Debug"
+    }
   }
 }
+
 ```
 
 
