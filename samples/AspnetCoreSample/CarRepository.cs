@@ -1,44 +1,34 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using AzureCosmosContext;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AzureCosmosContext.ConsoleAppSample
+namespace AspnetCoreSample
 {
-    public interface ICarRepository
-    {
-        Task<Car> GetCarAsync(string partitionKey, string id);
-
-        Task RegisterCarAsync(Car car);
-
-        Task UpdateCarAsync(Car car);
-
-        Task<IEnumerable<Car>> GetCarsByCarCategoryAsync(string carCategory);
-    }
-
     public class CarRepository : CosmosRepositoryCore, ICarRepository
     {
         private readonly ILogger _logger;
-        public override string ContainerId => "carContainer";
+        public override string ContainerId => "cars";
 
         public CarRepository(CosmosContext context, ILogger<CarRepository> logger) : base(context, logger)
         {
             _logger = logger;
         }
 
-        public async Task<Car> GetCarAsync(string partitionKey, string id)
+        public async Task<Car> FindAsync(string partitionKey, string id)
         {
             return await GetItemByIdAsync<Car>(partitionKey, id);
         }
 
-        public async Task RegisterCarAsync(Car car)
+        public async Task RegisterAsync(Car car)
         {
-            await CreateItemAsync(car.CarCategory, car);
+            await CreateItemAsync(car.AgencyId, car);
         }
 
-        public async Task UpdateCarAsync(Car car)
+        public async Task UpdateAsync(Car car)
         {
-            await UpdateItemAsync(car.CarCategory, car.Id, car);
+            await UpdateItemAsync(car.AgencyId, car.Id, car);
         }
 
         public async Task<IEnumerable<Car>> GetCarsByCarCategoryAsync(string carCategory)

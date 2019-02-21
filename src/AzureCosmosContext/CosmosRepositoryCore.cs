@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace AzureCosmosContext
@@ -37,8 +38,19 @@ namespace AzureCosmosContext
         /// <returns></returns>
         protected virtual async Task CreateItemAsync<TItem>(object partitionKey, TItem item)
         {
-            var response = await _context.Containers[ContainerId].Items.CreateItemAsync(partitionKey, item);
-            LogRequestCharge(response);
+            try
+            {
+                var response = await _context.Containers[ContainerId].Items.CreateItemAsync(partitionKey, item);
+                LogRequestCharge(response);
+            }
+            catch (CosmosException e)
+            {
+                if (e.StatusCode == HttpStatusCode.Conflict)
+                {
+                    _logger.LogError(e.ActivityId, e, e.Message);
+                }
+                throw;
+            }
         }
 
         /// <summary>
@@ -156,6 +168,7 @@ namespace AzureCosmosContext
 
         protected async Task UpdateDatabaseRequestCharge(int throughput)
         {
+            // TODO 
             await _context.Database.ReplaceProvisionedThroughputAsync(throughput);
         }
     }

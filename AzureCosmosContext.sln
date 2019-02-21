@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.421
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28606.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{94842857-75E5-4E14-8042-671EB72B28D6}"
 EndProject
@@ -9,11 +9,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{92B1705D-1
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{D84B2024-7F81-4BF3-B707-8B58A36780A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureCosmosContext", "src\AzureCosmosContext\AzureCosmosContext.csproj", "{9A00E707-9867-4527-BDBB-5E64238FD8B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureCosmosContext", "src\AzureCosmosContext\AzureCosmosContext.csproj", "{9A00E707-9867-4527-BDBB-5E64238FD8B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureCosmosContextTests", "test\AzureCosmosContextTests\AzureCosmosContextTests.csproj", "{96B53452-6D02-404A-87F7-E378074CA823}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureCosmosContextTests", "test\AzureCosmosContextTests\AzureCosmosContextTests.csproj", "{96B53452-6D02-404A-87F7-E378074CA823}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureCosmosContext.ConsoleAppSample", "samples\AzureCosmosContext.ConsoleAppSample\AzureCosmosContext.ConsoleAppSample.csproj", "{7938C676-CA05-4160-ABFB-9F4A17E893B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspnetCoreSample", "samples\AspnetCoreSample\AspnetCoreSample.csproj", "{D2A593C3-B5E5-4F30-8A99-545C7DE4E75A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppSample", "samples\ConsoleAppSample\ConsoleAppSample.csproj", "{D1823BD4-ABB3-4B2D-99D2-FCDE490E030C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +31,14 @@ Global
 		{96B53452-6D02-404A-87F7-E378074CA823}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96B53452-6D02-404A-87F7-E378074CA823}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96B53452-6D02-404A-87F7-E378074CA823}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7938C676-CA05-4160-ABFB-9F4A17E893B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7938C676-CA05-4160-ABFB-9F4A17E893B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7938C676-CA05-4160-ABFB-9F4A17E893B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7938C676-CA05-4160-ABFB-9F4A17E893B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2A593C3-B5E5-4F30-8A99-545C7DE4E75A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2A593C3-B5E5-4F30-8A99-545C7DE4E75A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2A593C3-B5E5-4F30-8A99-545C7DE4E75A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2A593C3-B5E5-4F30-8A99-545C7DE4E75A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1823BD4-ABB3-4B2D-99D2-FCDE490E030C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1823BD4-ABB3-4B2D-99D2-FCDE490E030C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1823BD4-ABB3-4B2D-99D2-FCDE490E030C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1823BD4-ABB3-4B2D-99D2-FCDE490E030C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -40,7 +46,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{9A00E707-9867-4527-BDBB-5E64238FD8B6} = {94842857-75E5-4E14-8042-671EB72B28D6}
 		{96B53452-6D02-404A-87F7-E378074CA823} = {92B1705D-1525-4FDD-B08D-0D7E2A126927}
-		{7938C676-CA05-4160-ABFB-9F4A17E893B5} = {D84B2024-7F81-4BF3-B707-8B58A36780A2}
+		{D2A593C3-B5E5-4F30-8A99-545C7DE4E75A} = {D84B2024-7F81-4BF3-B707-8B58A36780A2}
+		{D1823BD4-ABB3-4B2D-99D2-FCDE490E030C} = {D84B2024-7F81-4BF3-B707-8B58A36780A2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76BE65BB-3F16-4364-B346-3CE5577E6809}

@@ -69,7 +69,7 @@ namespace AzureCosmosContext
             CosmosContainer container = await Database.Containers.CreateContainerIfNotExistsAsync(options.ToCosmosContainerSettings());
             var throughput = await container.ReadProvisionedThroughputAsync();
 
-            _logger.LogInformation($"Container:{container}; throughput:{ConvertThroughputLogString(throughput)}");
+            _logger.LogInformation($"Container:{container.Id}; throughput:{ConvertThroughputLogString(throughput)}");
         }
 
         private async Task CacheDatabaseAsync()
@@ -86,6 +86,7 @@ namespace AzureCosmosContext
 
         private async Task CacheContainersAsync()
         {
+            Containers = Database.Containers; // CacheDatabaseAsync()経由だとインスタンス化するのみ。
             var resultSetIterator = Database.Containers.GetContainerIterator();
             ContainerIds = new List<string>();
             while (resultSetIterator.HasMoreResults)
@@ -95,15 +96,22 @@ namespace AzureCosmosContext
                     ContainerIds.Add(container.Id);
                 }
             }
+            ValidateContainers();
+        }
 
-            // ここまでチェックする必要があるかは用途次第。
-            if (ContainerIds.Count == 0 || !IsValidContainersSetting())
+        private void ValidateContainers(bool needStrongCheck = false)
+        {
+            if (ContainerIds.Count == 0)
             {
                 _logger.LogCritical(MessageOfContainerNotExists, _cosmosDbOptions.DatabaseId);
                 throw new ArgumentException(MessageOfContainerNotExists, _cosmosDbOptions.DatabaseId);
             }
 
-            Containers = Database.Containers;
+            if (needStrongCheck && !IsValidContainersSetting())
+            {
+                _logger.LogCritical(MessageOfContainerNotExists, _cosmosDbOptions.DatabaseId);
+                throw new ArgumentException(MessageOfContainerNotExists, _cosmosDbOptions.DatabaseId);
+            }
         }
 
         private static string ConvertThroughputLogString(int? throughput) => throughput == null ? "No Setting" : throughput.ToString();

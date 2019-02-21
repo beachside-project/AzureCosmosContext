@@ -2,9 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
-namespace AzureCosmosContext.ConsoleAppSample
+namespace ConsoleAppSample
 {
     internal class Program
     {
@@ -13,7 +14,7 @@ namespace AzureCosmosContext.ConsoleAppSample
             var builder = new HostBuilder()
                 .ConfigureHostConfiguration(config =>
                 {
-                    // Console App の環境変数 "NETCORE_ENVIRONMENT" に "Development" を設定している前提。
+                    // HACK Console App の環境変数 "NETCORE_ENVIRONMENT" に "Development" を設定している前提。
                     config.AddEnvironmentVariables("NETCORE_");
                 })
                 .ConfigureAppConfiguration((hostContext, config) =>
@@ -40,10 +41,11 @@ namespace AzureCosmosContext.ConsoleAppSample
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
+                    //HACK for AzureCosmosContext
                     services.AddCosmosContext(hostContext.Configuration);
 
-                    services.AddSingleton<ICarRepository, CarRepository>();
-                    services.AddSingleton<IHostedService, CosmosSample>();
+                    services.AddSingleton<IItemRepository, ItemRepository>();
+                    services.AddSingleton<IHostedService, UniqueKeyConstraintsInvestigation>();
                 })
                 .ConfigureLogging((hostContext, logging) =>
                 {
