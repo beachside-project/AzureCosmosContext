@@ -3,7 +3,6 @@
 This is a sample using [Azure/azure-cosmos-dotnet-v3](https://github.com/Azure/azure-cosmos-dotnet-v3) SDK.
 
 
-
 ## appsettings.json settings
 
 This library need following appsettings.json.  
@@ -45,7 +44,20 @@ set connectionString to `cosmosDbConnectionString` section in appsettings.Develo
 
 if you use Cosmos DB in Azure, should set connectionString to `cosmosDbConnectionString` in environment variables.
 
+## When load values from appsettings.Development.json
+
+When using ASP.NET Core, the environment name is set by default.  
+if use ConsoleApp, you need to set environment value.  
+please watch ConsoleAppSample project > Program.cs > `ConfigureHostConfiguration` section.
 
 ## How to use
 
-show AzureCosmosContext.ConsoleAppSample.
+### ASP.NET Core
+
+Please See `Startup.cs` and `CarRepository.cs` in AspnetCoreSample project.
+
+
+### ConsoleApp
+
+Please See ConsoleAppSample project. This is Generic Host sample.
+
