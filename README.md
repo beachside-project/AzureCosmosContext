@@ -54,10 +54,10 @@ please watch ConsoleAppSample project > Program.cs > `ConfigureHostConfiguration
 
 ### ASP.NET Core
 
-Please See `Startup.cs` and `CarRepository.cs` in AspnetCoreSample project.
+Please see `Startup.cs` and `CarRepository.cs` in AspnetCoreSample project.
 
 
 ### ConsoleApp
 
-Please See ConsoleAppSample project. This is Generic Host sample.
+Please see ConsoleAppSample project. This is Generic Host sample.
 
