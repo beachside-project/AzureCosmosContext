@@ -36,8 +36,12 @@ namespace Microsoft.Extensions.DependencyInjection
                 // もしGateway(ConnectionMode.Gateway/Protocol.Https) を使いたければ、以下メソッドを呼ぶ
                 // config.UseConnectionModeGateway(maxConnectionLimit: ??);
 
-                // CamelCase Serialize/Deserialize support
-                config.UseCustomJsonSerializer(new CosmosCamelCaseJsonSerializer());
+                // Default: CamelCase Serialize/Deserialize and ignore Readonly property
+                // TODO: 設定変更用のconfigは未実装
+                //var settings = JsonSerializerSettingsFactory.CreateForReadonlyIgnoreAndCamelCase();
+                var settings = JsonSerializerSettingsFactory.CreateForCamelCase();
+
+                config.UseCustomJsonSerializer(new CustomizableCaseJsonSerializer(settings));
 
                 if (cosmosOptions.ThrottlingRetryOptions != null)
                 {

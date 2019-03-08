@@ -7,6 +7,8 @@
         public string CompanyId { get; set; }
         public string EmployeeId { get; set; }
 
+        public string Something => $"{Division}-{CompanyId}-{EmployeeId}";
+
         public Item()
         {
         }

@@ -1,17 +1,20 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System.IO;
 using System.Text;
 
 namespace AzureCosmosContext
 {
-    public class CosmosCamelCaseJsonSerializer : CosmosJsonSerializer
+    public class CustomizableCaseJsonSerializer : CosmosJsonSerializer
     {
+        public CustomizableCaseJsonSerializer(JsonSerializerSettings settings)
+        {
+            _serializer = JsonSerializer.Create(settings);
+        }
+
         private const int BufferSize = 1024;
 
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver() };
-        private static readonly JsonSerializer Serializer = JsonSerializer.Create(Settings);
+        private readonly JsonSerializer _serializer;
 
         public override T FromStream<T>(Stream stream)
         {
@@ -26,7 +29,7 @@ namespace AzureCosmosContext
                 {
                     using (var jsonTextReader = new JsonTextReader(sr))
                     {
-                        return Serializer.Deserialize<T>(jsonTextReader);
+                        return _serializer.Deserialize<T>(jsonTextReader);
                     }
                 }
             }
@@ -40,7 +43,7 @@ namespace AzureCosmosContext
                 using (JsonWriter writer = new JsonTextWriter(streamWriter))
                 {
                     writer.Formatting = Formatting.None;
-                    Serializer.Serialize(writer, input);
+                    _serializer.Serialize(writer, input);
                     writer.Flush();
                     streamWriter.Flush();
                 }

@@ -60,7 +60,6 @@ namespace AzureCosmosContext
                 .Select(async op => await CreateContainerIfNotExistsAsync(op))
                 .WhenAll();
 
-            Containers = Database.Containers;
         }
 
         private async Task CreateContainerIfNotExistsAsync(CosmosContainerOptions options)

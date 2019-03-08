@@ -45,7 +45,9 @@ namespace ConsoleAppSample
                     services.AddCosmosContext(hostContext.Configuration);
 
                     services.AddSingleton<IItemRepository, ItemRepository>();
-                    services.AddSingleton<IHostedService, UniqueKeyConstraintsInvestigation>();
+
+                    //services.AddSingleton<IHostedService, UniqueKeyConstraintsInvestigation>();
+                    services.AddSingleton<IHostedService, SerializerSample>();
                 })
                 .ConfigureLogging((hostContext, logging) =>
                 {
