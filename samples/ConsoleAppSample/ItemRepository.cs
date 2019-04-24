@@ -1,5 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AzureCosmosContext;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 
 namespace ConsoleAppSample
@@ -8,6 +11,7 @@ namespace ConsoleAppSample
     {
         Task<Item> FindAsync(string partitionKey, string id);
         Task RegisterAsync(Item item);
+        Task<IEnumerable<Item>> GetItemAllAsync();
     }
 
 
@@ -21,14 +25,27 @@ namespace ConsoleAppSample
             _logger = logger;
         }
 
+        public async Task RegisterAsync(Item item)
+        {
+            await CreateItemAsync(item.Division, item);
+        }
+
         public async Task<Item> FindAsync(string partitionKey, string id)
         {
             return await GetItemByIdAsync<Item>(partitionKey, id);
         }
 
-        public async Task RegisterAsync(Item item)
+        public async Task<IEnumerable<Item>> GetItemAllAsync()
         {
-            await CreateItemAsync(item.Division, item);
+            var query = new CosmosSqlQueryDefinition("select * from t ");
+               //.UseParameter("@account", "12345");
+
+            return await GetItemsAsync<Item>(query);
         }
+
+
+
+
+
     }
 }

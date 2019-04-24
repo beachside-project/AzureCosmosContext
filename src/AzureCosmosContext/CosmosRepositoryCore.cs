@@ -118,7 +118,7 @@ namespace AzureCosmosContext
         /// <returns></returns>
         protected virtual async Task<IEnumerable<TItem>> GetItemsAsync<TItem>(CosmosSqlQueryDefinition query, int maxConcurrency = 1, int maxItemCount = 10)
         {
-            // TODO: parameter's default value's definition....move to appsettings?
+            // TODO: method argument's default value's definition....move to appsettings?
             var set = _context.Containers[ContainerId].Items.CreateItemQuery<TItem>(query, maxConcurrency, maxItemCount);
             var items = new List<TItem>();
             while (set.HasMoreResults)
@@ -126,7 +126,8 @@ namespace AzureCosmosContext
                 CosmosQueryResponse<TItem> response = await set.FetchNextSetAsync();
                 items.AddRange(response);
             }
-            // TODO: logging total RC.There is this issue: https://github.com/Azure/azure-cosmos-dotnet-v3/issues/21
+            // TODO: logging total Request Charge.There is this issue: https://github.com/Azure/azure-cosmos-dotnet-v3/issues/21
+            //      現状だと、responseの中の Non-public Fieldにいる。。。
 
             return items;
         }

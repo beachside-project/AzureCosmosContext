@@ -27,35 +27,40 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 var connectionString = configuration.GetSection("cosmosDbConnectionString").Get<string>();
                 ValidateNotNull(connectionString, "cosmosDbConnectionString");
-                var config = new CosmosConfiguration(connectionString);
+
+
+                var builder = new CosmosClientBuilder(connectionString);
+
 
                 // ConnectionPolicy のDefault値は、SDKのConnectionPolicy.csで設定されています。
 
                 // ## Connection Mode について
                 // Default で ConnectionMode.Direct/Protocol.Tcp で接続されます。
                 // もしGateway(ConnectionMode.Gateway/Protocol.Https) を使いたければ、以下メソッドを呼ぶ
-                // config.UseConnectionModeGateway(maxConnectionLimit: ??);
+                // builder.UseConnectionModeGateway(maxConnectionLimit: ??);
 
                 // Default: CamelCase Serialize/Deserialize and ignore Readonly property
                 // TODO: 設定変更用のconfigは未実装
                 //var settings = JsonSerializerSettingsFactory.CreateForReadonlyIgnoreAndCamelCase();
                 var settings = JsonSerializerSettingsFactory.CreateForCamelCase();
 
-                config.UseCustomJsonSerializer(new CustomizableCaseJsonSerializer(settings));
+                builder.UseCustomJsonSerializer(new CustomizableCaseJsonSerializer(settings));
+
 
                 if (cosmosOptions.ThrottlingRetryOptions != null)
                 {
-                    config.UseThrottlingRetryOptions(cosmosOptions.ThrottlingRetryOptions.MaxRetryWaitTimeOnThrottledRequests,
+
+                    builder.UseThrottlingRetryOptions(cosmosOptions.ThrottlingRetryOptions.MaxRetryWaitTimeOnThrottledRequests,
                                                      cosmosOptions.ThrottlingRetryOptions.MaxRetryAttemptsOnThrottledRequests);
                 }
 
                 // multi-master support
                 if (!string.IsNullOrEmpty(cosmosOptions.CurrentRegion))
                 {
-                    config.UseCurrentRegion(cosmosOptions.CurrentRegion);
+                    builder.UseCurrentRegion(cosmosOptions.CurrentRegion);
                 }
 
-                return new CosmosClient(config);
+                return builder.Build();
             });
 
             services.AddSingleton<CosmosContext>();

@@ -21,8 +21,16 @@ namespace ConsoleAppSample
         {
             try
             {
-                var item = new Item("103", "Div0", "Company1", "Employee2");
-                await _repository.RegisterAsync(item);
+                //var item = new Item("309", "Div0", "Company3", "Employee9");
+                //await _repository.RegisterAsync(item);
+
+
+
+                var items = await _repository.GetItemAllAsync();
+
+
+
+
             }
             catch (Exception e)
             {
