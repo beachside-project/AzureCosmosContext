@@ -40,14 +40,14 @@ This library need following appsettings.json.
 ## ConnectionString settings for Azure Functions V2
 
 if you use [Azure Cosmos DB Emulator](https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator) in local debug,
-set connectionString to `cosmosDbConnectionString` section in local.settings.json.
+set connectionString to `cosmosDbConnectionString` section in **local.settings.json**.
 And On Azure Functions, set connectionString to `cosmosDbConnectionString` key on ApplicationSettings.
 
 
 ## ConnectionString settings other than Azure Functions V2
 
 if you use [Azure Cosmos DB Emulator](https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator) in local debug,
-set connectionString to `cosmosDbConnectionString` section in appsettings.Development.json .
+set connectionString to `cosmosDbConnectionString` section in **appsettings.Development.json** .
 
 On Azure, should set connectionString to `cosmosDbConnectionString` key in environment variables.
 
@@ -55,7 +55,7 @@ On Azure, should set connectionString to `cosmosDbConnectionString` key in envir
 ### When load values from appsettings.Development.json
 
 When using ASP.NET Core, the environment name is set by default.  
-if use ConsoleApp, you need to set environment value.  
+if use ConsoleApp, you need to set environment name value.  
 please watch ConsoleAppSample project > Program.cs > `ConfigureHostConfiguration` section.
 
 
