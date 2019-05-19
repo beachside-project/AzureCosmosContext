@@ -17,7 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspnetCoreSample", "samples
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppSample", "samples\ConsoleAppSample\ConsoleAppSample.csproj", "{D1823BD4-ABB3-4B2D-99D2-FCDE490E030C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionsV2Sample", "samples\FunctionsV2Sample\FunctionsV2Sample.csproj", "{0B2CD916-1B99-4DE9-9F78-ECA0C8996244}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionsV2Sample", "samples\FunctionsV2Sample\FunctionsV2Sample.csproj", "{0B2CD916-1B99-4DE9-9F78-ECA0C8996244}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{70668B8B-066A-4CB6-B24E-C19C406E4D66}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
