@@ -42,7 +42,8 @@ namespace ConsoleAppSample
                 .ConfigureServices((hostContext, services) =>
                 {
                     //HACK for AzureCosmosContext
-                    services.AddCosmosContext(hostContext.Configuration);
+                    services.AddCosmosContext(); // TODO HACK
+                    //services.AddCosmosContext(hostContext.Configuration);
 
                     services.AddSingleton<IItemRepository, ItemRepository>();
 

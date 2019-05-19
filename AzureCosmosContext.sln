@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspnetCoreSample", "samples
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppSample", "samples\ConsoleAppSample\ConsoleAppSample.csproj", "{D1823BD4-ABB3-4B2D-99D2-FCDE490E030C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionsV2Sample", "samples\FunctionsV2Sample\FunctionsV2Sample.csproj", "{0B2CD916-1B99-4DE9-9F78-ECA0C8996244}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{D1823BD4-ABB3-4B2D-99D2-FCDE490E030C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1823BD4-ABB3-4B2D-99D2-FCDE490E030C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1823BD4-ABB3-4B2D-99D2-FCDE490E030C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B2CD916-1B99-4DE9-9F78-ECA0C8996244}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B2CD916-1B99-4DE9-9F78-ECA0C8996244}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B2CD916-1B99-4DE9-9F78-ECA0C8996244}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B2CD916-1B99-4DE9-9F78-ECA0C8996244}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +54,7 @@ Global
 		{96B53452-6D02-404A-87F7-E378074CA823} = {92B1705D-1525-4FDD-B08D-0D7E2A126927}
 		{D2A593C3-B5E5-4F30-8A99-545C7DE4E75A} = {D84B2024-7F81-4BF3-B707-8B58A36780A2}
 		{D1823BD4-ABB3-4B2D-99D2-FCDE490E030C} = {D84B2024-7F81-4BF3-B707-8B58A36780A2}
+		{0B2CD916-1B99-4DE9-9F78-ECA0C8996244} = {D84B2024-7F81-4BF3-B707-8B58A36780A2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76BE65BB-3F16-4364-B346-3CE5577E6809}

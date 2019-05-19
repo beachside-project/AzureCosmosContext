@@ -22,11 +22,11 @@ namespace AzureCosmosContext
 
         public abstract string ContainerId { get; }
 
-        protected CosmosRepositoryCore(CosmosContext context, ILogger<CosmosRepositoryCore> logger)
+        protected CosmosRepositoryCore(CosmosContext context, ILogger logger)
         {
             _context = context;
             _logger = logger;
-            ValidateContainerId();
+            GuardContainerId();
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace AzureCosmosContext
         }
 
 
-        private void ValidateContainerId()
+        private void GuardContainerId()
         {
             if (string.IsNullOrWhiteSpace(ContainerId))
             {

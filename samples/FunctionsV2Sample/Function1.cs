@@ -1,33 +1,34 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace AspnetCoreSample.Controllers
+namespace FunctionsV2Sample
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ValuesController : ControllerBase
+    public class Function1
     {
         private readonly ICarRepository _repository;
-        private readonly ILogger<ValuesController> _logger;
 
-        public ValuesController(ICarRepository repository, ILogger<ValuesController> logger)
+        public Function1(ICarRepository carRepository)
         {
-            _repository = repository;
-            _logger = logger;
+            _repository = carRepository;
         }
 
-        // GET api/values
-        [HttpGet]
-        public async Task<IActionResult> Get()
+        [FunctionName("Function1")]
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]
+            ILogger log)
         {
-            _logger.LogInformation("called ValuesController.Get method....");
+            log.LogInformation("C# HTTP trigger function processed a request.");
+
             var car = CreateSampleCarInstance();
             await _repository.RegisterAsync(car);
 
             var target = await _repository.FindAsync(car.AgencyId, car.Id);
-            return Ok(target);
+
+            return new OkObjectResult(target);
         }
 
         private static Car CreateSampleCarInstance()

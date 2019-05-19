@@ -1,10 +1,10 @@
-﻿using AzureCosmosContext;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using AzureCosmosContext;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace AspnetCoreSample
+namespace FunctionsV2Sample
 {
     public class CarRepository : CosmosRepositoryCore, ICarRepository
     {

@@ -23,20 +23,21 @@ namespace AzureCosmosContext
 
         private readonly CosmosClient _cosmosClient;
         private readonly ILogger<CosmosContext> _logger;
-        private readonly CosmosOptions _cosmosDbOptions;
+        private readonly CosmosOptions _cosmosOptions;
 
 
         public CosmosContext(CosmosClient cosmosClient, IOptions<CosmosOptions> options, ILogger<CosmosContext> logger)
         {
             _cosmosClient = cosmosClient;
             _logger = logger;
-            _cosmosDbOptions = options.Value;
+            _cosmosOptions = options.Value;
+            _cosmosOptions.Guard();
             SetupAsync().Wait();
         }
 
         private async Task SetupAsync()
         {
-            if (_cosmosDbOptions.NeedCreateIfExist)
+            if (_cosmosOptions.NeedCreateIfExist)
             {
                 await InitializeCosmosDbAsync();
             }
@@ -50,13 +51,13 @@ namespace AzureCosmosContext
         private async Task InitializeCosmosDbAsync()
         {
             // appsettings の DefaultThroughput は Database の Throughput へ設定  
-            var databaseResponse = await _cosmosClient.Databases.CreateDatabaseIfNotExistsAsync(_cosmosDbOptions.DatabaseId, _cosmosDbOptions.DefaultThroughput);
+            var databaseResponse = await _cosmosClient.Databases.CreateDatabaseIfNotExistsAsync(_cosmosOptions.DatabaseId, _cosmosOptions.DefaultThroughput);
             Database = databaseResponse;
 
             var dbThroughput = await Database.ReadProvisionedThroughputAsync();
             _logger.LogInformation($"Database:{Database.Id}; throughput:{ConvertThroughputLogString(dbThroughput)}");
 
-            await _cosmosDbOptions.CosmosContainerOptions
+            await _cosmosOptions.CosmosContainerOptions
                 .Select(async op => await CreateContainerIfNotExistsAsync(op))
                 .WhenAll();
 
@@ -73,14 +74,14 @@ namespace AzureCosmosContext
 
         private async Task CacheDatabaseAsync()
         {
-            var databaseResponse = await _cosmosClient.Databases[_cosmosDbOptions.DatabaseId].ReadAsync();
+            var databaseResponse = await _cosmosClient.Databases[_cosmosOptions.DatabaseId].ReadAsync();
             if (databaseResponse.StatusCode != HttpStatusCode.OK)
             {
-                _logger.LogCritical(MessageOfDatabaseNotExists, _cosmosDbOptions.DatabaseId);
-                throw new ArgumentException(MessageOfDatabaseNotExists, _cosmosDbOptions.DatabaseId);
+                _logger.LogCritical(MessageOfDatabaseNotExists, _cosmosOptions.DatabaseId);
+                throw new ArgumentException(MessageOfDatabaseNotExists, _cosmosOptions.DatabaseId);
             }
 
-            Database = _cosmosClient.Databases[_cosmosDbOptions.DatabaseId];
+            Database = _cosmosClient.Databases[_cosmosOptions.DatabaseId];
         }
 
         private async Task CacheContainersAsync()
@@ -102,19 +103,19 @@ namespace AzureCosmosContext
         {
             if (ContainerIds.Count == 0)
             {
-                _logger.LogCritical(MessageOfContainerNotExists, _cosmosDbOptions.DatabaseId);
-                throw new ArgumentException(MessageOfContainerNotExists, _cosmosDbOptions.DatabaseId);
+                _logger.LogCritical(MessageOfContainerNotExists, _cosmosOptions.DatabaseId);
+                throw new ArgumentException(MessageOfContainerNotExists, _cosmosOptions.DatabaseId);
             }
 
             if (needStrongCheck && !IsValidContainersSetting())
             {
-                _logger.LogCritical(MessageOfContainerNotExists, _cosmosDbOptions.DatabaseId);
-                throw new ArgumentException(MessageOfContainerNotExists, _cosmosDbOptions.DatabaseId);
+                _logger.LogCritical(MessageOfContainerNotExists, _cosmosOptions.DatabaseId);
+                throw new ArgumentException(MessageOfContainerNotExists, _cosmosOptions.DatabaseId);
             }
         }
 
         private static string ConvertThroughputLogString(int? throughput) => throughput == null ? "No Setting" : throughput.ToString();
 
-        private bool IsValidContainersSetting() => _cosmosDbOptions.CosmosContainerOptions.All(options => ContainerIds.Contains(options.ContainerId));
+        private bool IsValidContainersSetting() => _cosmosOptions.CosmosContainerOptions.All(options => ContainerIds.Contains(options.ContainerId));
     }
 }

@@ -19,28 +19,28 @@ namespace AzureCosmosContext.Options
         /// <summary>
         /// プロパティの値の validation。異常があればExceptionを発生させてアプリを止めます。
         /// </summary>
-        public void Validate()
+        public void Guard()
         {
-            Validate(DatabaseId, nameof(DatabaseId));
-            ValidateDefaultThroughput();
-            ValidateThrottlingRetryOptions(ThrottlingRetryOptions);
+            GuardNullOrEmpty(DatabaseId, nameof(DatabaseId));
+            GuardDefaultThroughput();
+            GuardThrottlingRetryOptions(ThrottlingRetryOptions);
         }
 
-        private static void Validate(string property, string propertyName)
+        private static void GuardNullOrEmpty(string property, string propertyName)
         {
             if (string.IsNullOrEmpty(property)) throw new ArgumentNullException(propertyName);
         }
 
         private const int CosmosMinThroughput = 400;
 
-        private void ValidateDefaultThroughput()
+        private void GuardDefaultThroughput()
         {
             if (DefaultThroughput < CosmosMinThroughput)
                 throw new ArgumentOutOfRangeException(nameof(DefaultThroughput));
             // 最大値のチェックは今はしてない。
         }
 
-        private static void ValidateThrottlingRetryOptions(ThrottlingRetryOptions throttlingRetryOptions)
+        private static void GuardThrottlingRetryOptions(ThrottlingRetryOptions throttlingRetryOptions)
         {
             if (throttlingRetryOptions == null) return; // 定義なしはOK
             if (throttlingRetryOptions.NumberOfRetries <= 0)
