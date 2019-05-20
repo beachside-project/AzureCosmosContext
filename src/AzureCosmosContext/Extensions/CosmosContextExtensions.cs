@@ -1,43 +1,48 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using AzureCosmosContext;
+﻿using AzureCosmosContext;
 using AzureCosmosContext.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System;
+using System.Diagnostics;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class CosmosContextExtensions
     {
-
         public static IServiceCollection AddCosmosContextForFunctionsV2(this IServiceCollection services)
         {
-            var defaultConfig = services.First(s => s.ServiceType == typeof(IConfiguration)).ImplementationInstance as IConfiguration;
+            var sp = services.BuildServiceProvider();
+            var env = sp.GetRequiredService<IHostingEnvironment>();
+            var defaultConfig = sp.GetRequiredService<IConfiguration>();
+
+            // TODO: 取得方法がかなり微妙
+            var basePah = env.IsDevelopment() ? Environment.CurrentDirectory : @"D:\home\site\wwwroot";
+
             var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json");
+                .SetBasePath(basePah)
+                .AddJsonFile("appsettings.json")
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
 
             var customConfig = builder.AddConfiguration(defaultConfig).Build();
 
             return AddCosmosContext(services, customConfig);
         }
 
-
-
-
-
-
-
-
-
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// 利用前提として、事前にappsettings.json を読み込んで IOptions of CosmosOptions が登録済みである必要があります。
+        /// </remarks>
         public static IServiceCollection AddCosmosContext(this IServiceCollection services)
         {
-            var configuration = services.First(s => s.ServiceType == typeof(IConfiguration)).ImplementationInstance as IConfiguration;
+            var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
             return AddCosmosContext(services, configuration);
         }
 
@@ -73,7 +78,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="app"></param>
         /// <returns></returns>
@@ -109,10 +114,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
             builder.UseCustomJsonSerializer(new CustomizableCaseJsonSerializer(settings));
 
-
             if (cosmosOptions.ThrottlingRetryOptions != null)
             {
-
                 builder.UseThrottlingRetryOptions(cosmosOptions.ThrottlingRetryOptions.MaxRetryWaitTimeOnThrottledRequests,
                     cosmosOptions.ThrottlingRetryOptions.MaxRetryAttemptsOnThrottledRequests);
             }
@@ -138,6 +141,6 @@ namespace Microsoft.Extensions.DependencyInjection
             if (string.IsNullOrEmpty(target)) throw new ArgumentException(propertyName);
         }
 
-        #endregion
+        #endregion private
     }
 }
