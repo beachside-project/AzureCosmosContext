@@ -49,7 +49,7 @@ And On Azure Functions, set connectionString to `cosmosDbConnectionString` key o
 if you use [Azure Cosmos DB Emulator](https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator) in local debug,
 set connectionString to `cosmosDbConnectionString` section in **appsettings.Development.json** .
 
-On Azure, should set connectionString to `cosmosDbConnectionString` key in environment variables.
+On Azure, should set connectionString to `cosmosDbConnectionString` key on ApplicationSettings.
 
 
 ### When load values from appsettings.Development.json
