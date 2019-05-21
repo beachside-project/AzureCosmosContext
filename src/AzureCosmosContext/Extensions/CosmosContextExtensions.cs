@@ -19,11 +19,10 @@ namespace Microsoft.Extensions.DependencyInjection
             var env = sp.GetRequiredService<IHostingEnvironment>();
             var defaultConfig = sp.GetRequiredService<IConfiguration>();
 
-            // TODO: 取得方法がかなり微妙
-            var basePah = env.IsDevelopment() ? Environment.CurrentDirectory : @"D:\home\site\wwwroot";
+            var basePath = env.IsDevelopment() ? Environment.CurrentDirectory : GetBasePathOnAzureFunctionsV2Host();
 
             var builder = new ConfigurationBuilder()
-                .SetBasePath(basePah)
+                .SetBasePath(basePath)
                 .AddJsonFile("appsettings.json")
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
 
@@ -127,6 +126,17 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             return builder.Build();
+        }
+
+        private static string GetBasePathOnAzureFunctionsV2Host()
+        {
+            // Environment.CurrentDirectory だと cli のパスが取得されてしまう("D:\Program Files (x86)\SiteExtensions\Functions\2.0.12438\32bit")
+            // IHostingEnvironment の ContentRootPath も同様
+            // Environment.GetEnvironmentVariable("WEBROOT_PATH") は null になる
+            // 現状でベターな方法がないため以下実装
+
+            var homePath = Environment.GetEnvironmentVariable("HOME");
+            return homePath + @"\site\wwwroot";
         }
 
         [DebuggerStepThrough]
