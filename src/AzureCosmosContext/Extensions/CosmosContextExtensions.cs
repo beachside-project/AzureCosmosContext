@@ -2,6 +2,7 @@
 using AzureCosmosContext.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.WebJobs.Host.Bindings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -16,13 +17,13 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddCosmosContextForFunctionsV2(this IServiceCollection services)
         {
             var sp = services.BuildServiceProvider();
-            var env = sp.GetRequiredService<IHostingEnvironment>();
+            var env = sp.GetRequiredService<IHostingEnvironment>(); //If use `env.EnvironmentName`, need to set environment variables by "AZURE_FUNCTIONS_ENVIRONMENT" key.
             var defaultConfig = sp.GetRequiredService<IConfiguration>();
 
-            var basePath = env.IsDevelopment() ? Environment.CurrentDirectory : GetBasePathOnAzureFunctionsV2Host();
+            var appDirectory = sp.GetRequiredService<IOptions<ExecutionContextOptions>>().Value.AppDirectory;
 
             var builder = new ConfigurationBuilder()
-                .SetBasePath(basePath)
+                .SetBasePath(appDirectory)
                 .AddJsonFile("appsettings.json")
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
 
@@ -126,17 +127,6 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             return builder.Build();
-        }
-
-        private static string GetBasePathOnAzureFunctionsV2Host()
-        {
-            // Environment.CurrentDirectory だと cli のパスが取得されてしまう("D:\Program Files (x86)\SiteExtensions\Functions\2.0.12438\32bit")
-            // IHostingEnvironment の ContentRootPath も同様
-            // Environment.GetEnvironmentVariable("WEBROOT_PATH") は null になる
-            // 現状でベターな方法がないため以下実装
-
-            var homePath = Environment.GetEnvironmentVariable("HOME");
-            return homePath + @"\site\wwwroot";
         }
 
         [DebuggerStepThrough]

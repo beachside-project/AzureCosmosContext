@@ -58,6 +58,7 @@ When using ASP.NET Core, the environment name is set by default.
 if use ConsoleApp, you need to set environment name value.  
 please watch ConsoleAppSample project > Program.cs > `ConfigureHostConfiguration` section.
 
+> :warning: Using Azure Functions V2, If use `env.EnvironmentName`, need to set environment variables by "AZURE_FUNCTIONS_ENVIRONMENT" key. (TargetFramework: netcoreapp2.2)
 
 ## How to use
 
