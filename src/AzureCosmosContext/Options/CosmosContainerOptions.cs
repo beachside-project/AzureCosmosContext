@@ -18,24 +18,27 @@ namespace AzureCosmosContext.Options
         /// </remarks>
         public Collection<string> UniqueKeys { get; set; }
 
-        public CosmosContainerSettings ToCosmosContainerSettings()
+
+        public ContainerProperties ToContainerProperties()
         {
-            var settings = new CosmosContainerSettings(ContainerId, PartitionKey);
+            var properties = new ContainerProperties(ContainerId, PartitionKey);
+
             if (UniqueKeys != null && UniqueKeys.Any())
             {
-                settings.UniqueKeyPolicy = new UniqueKeyPolicy
+                var cosmosUniqueKey = new UniqueKey();
+
+                foreach (var key in UniqueKeys)
                 {
-                    UniqueKeys = new Collection<UniqueKey>
-                    {
-                        new UniqueKey
-                        {
-                            Paths = UniqueKeys
-                        }
-                    }
-                };
+                    cosmosUniqueKey.Paths.Add(key);
+                }
+
+                properties.UniqueKeyPolicy.UniqueKeys.Add(cosmosUniqueKey);
             }
 
-            return settings;
+            // TODO: set IndexingMode
+            //properties.IndexingPolicy.IndexingMode = IndexingMode.Consistent;
+
+            return properties;
         }
     }
 }

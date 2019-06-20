@@ -8,8 +8,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics;
+using Microsoft.Azure.Cosmos.Fluent;
 
-// ReSharper disable once CheckNamespace
+// ReSharper disable once CheckNamespaceQ
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class CosmosContextExtensions
@@ -78,7 +79,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        ///
+        /// warming-up cosmos connection
         /// </summary>
         /// <param name="app"></param>
         /// <returns></returns>
@@ -112,18 +113,19 @@ namespace Microsoft.Extensions.DependencyInjection
             //var settings = JsonSerializerSettingsFactory.CreateForReadonlyIgnoreAndCamelCase();
             var settings = JsonSerializerSettingsFactory.CreateForCamelCase();
 
-            builder.UseCustomJsonSerializer(new CustomizableCaseJsonSerializer(settings));
+            builder.WithCustomSerializer(new CustomizableCaseJsonSerializer(settings));
 
             if (cosmosOptions.ThrottlingRetryOptions != null)
             {
-                builder.UseThrottlingRetryOptions(cosmosOptions.ThrottlingRetryOptions.MaxRetryWaitTimeOnThrottledRequests,
+                builder.WithThrottlingRetryOptions(
+                    cosmosOptions.ThrottlingRetryOptions.MaxRetryWaitTimeOnThrottledRequests,
                     cosmosOptions.ThrottlingRetryOptions.MaxRetryAttemptsOnThrottledRequests);
             }
 
             // multi-master support
             if (!string.IsNullOrEmpty(cosmosOptions.CurrentRegion))
             {
-                builder.UseCurrentRegion(cosmosOptions.CurrentRegion);
+                builder.WithApplicationRegion(cosmosOptions.CurrentRegion);
             }
 
             return builder.Build();

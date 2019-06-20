@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AzureCosmosContext
 {
-    public class CustomizableCaseJsonSerializer : CosmosJsonSerializer
+    public class CustomizableCaseJsonSerializer : CosmosSerializer
     {
         public CustomizableCaseJsonSerializer(JsonSerializerSettings settings)
         {
