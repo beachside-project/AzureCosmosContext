@@ -9,8 +9,9 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics;
 using Microsoft.Azure.Cosmos.Fluent;
+using Microsoft.Extensions.Logging;
 
-// ReSharper disable once CheckNamespaceQ
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class CosmosContextExtensions
@@ -33,50 +34,22 @@ namespace Microsoft.Extensions.DependencyInjection
             return AddCosmosContext(services, customConfig);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
-        /// <remarks>
-        /// 利用前提として、事前にappsettings.json を読み込んで IOptions of CosmosOptions が登録済みである必要があります。
-        /// </remarks>
-        public static IServiceCollection AddCosmosContext(this IServiceCollection services)
-        {
-            var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
-            return AddCosmosContext(services, configuration);
-        }
-
-        public static IServiceCollection AddCosmosContext(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCosmosContextForAspnetCore(this IServiceCollection services, IConfiguration configuration)
         {
             GuardNotNull(services, nameof(services));
             GuardNotNull(configuration, nameof(configuration));
 
-            services.AddOptions();
-            services.Configure<CosmosOptions>(configuration.GetSection("cosmosOptions"));
-
-            services.AddSingleton(sp =>
-            {
-                var cosmosOptions = sp.GetService<IOptions<CosmosOptions>>().Value;
-                var connectionString = configuration.GetSection("cosmosDbConnectionString").Get<string>();
-
-                return CreateCosmosClient(connectionString, cosmosOptions);
-            });
-
-            services.AddSingleton<CosmosContext>();
-
-            return services;
+            return AddCosmosContext(services, configuration);
         }
 
-        public static IServiceCollection AddCosmosContext(this IServiceCollection services, string connectionString, CosmosOptions cosmosOptions)
+        public static IServiceCollection AddCosmosContextForGenericHost(this IServiceCollection services, IConfiguration configuration)
         {
             GuardNotNull(services, nameof(services));
+            GuardNotNull(configuration, nameof(configuration));
 
-            services.AddSingleton(_ = CreateCosmosClient(connectionString, cosmosOptions));
-            services.AddSingleton<CosmosContext>();
-
-            return services;
+            return AddCosmosContext(services, configuration);
         }
+
 
         /// <summary>
         /// warming-up cosmos connection
@@ -94,7 +67,36 @@ namespace Microsoft.Extensions.DependencyInjection
 
         #region private
 
-        private static CosmosClient CreateCosmosClient(string connectionString, CosmosOptions cosmosOptions)
+        /// <summary>
+        /// DI のコア構成メソッド
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
+        /// <returns></returns>
+        private static IServiceCollection AddCosmosContext(this IServiceCollection services, IConfiguration configuration)
+        {
+            GuardNotNull(services, nameof(services));
+            GuardNotNull(configuration, nameof(configuration));
+
+            services.AddOptions();
+            services.Configure<CosmosOptions>(configuration.GetSection("cosmosOptions"));
+
+            services.AddSingleton<RequestChargeTrackRequestHandler>();
+
+            services.AddSingleton(sp =>
+            {
+                var cosmosOptions = sp.GetService<IOptions<CosmosOptions>>().Value;
+                var connectionString = configuration.GetSection("cosmosDbConnectionString").Get<string>();
+
+                return CreateCosmosClient(connectionString, cosmosOptions, sp);
+            });
+
+            services.AddSingleton<CosmosContext>();
+
+            return services;
+        }
+
+        private static CosmosClient CreateCosmosClient(string connectionString, CosmosOptions cosmosOptions, IServiceProvider sp)
         {
             GuardEmptyString(connectionString, "cosmosDbConnectionString");
             cosmosOptions.Guard();
@@ -128,8 +130,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.WithApplicationRegion(cosmosOptions.CurrentRegion);
             }
 
+            builder.AddCustomHandlers(
+                new RequestChargeTrackRequestHandler(sp.GetService<ILogger<RequestChargeTrackRequestHandler>>())
+            );
+
             return builder.Build();
         }
+
 
         [DebuggerStepThrough]
         private static void GuardNotNull<T>(T value, string propertyName) where T : class

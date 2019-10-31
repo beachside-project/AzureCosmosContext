@@ -26,7 +26,7 @@ namespace AspnetCoreSample.Controllers
             var car = CreateSampleCarInstance();
             await _repository.RegisterAsync(car);
 
-            var target = await _repository.FindAsync(car.AgencyId, car.Id);
+            var target = await _repository.FindAsync(car.CarCategory, car.Id);
             return Ok(target);
         }
 

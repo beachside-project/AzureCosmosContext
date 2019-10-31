@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace ConsoleAppSample
@@ -41,9 +40,7 @@ namespace ConsoleAppSample
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    //HACK for AzureCosmosContext
-                    services.AddCosmosContext(); // TODO HACK
-                    //services.AddCosmosContext(hostContext.Configuration);
+                    services.AddCosmosContextForGenericHost(hostContext.Configuration);
 
                     services.AddSingleton<IItemRepository, ItemRepository>();
 

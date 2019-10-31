@@ -32,7 +32,7 @@ namespace AzureCosmosContext
             _cosmosOptions.Guard();
             SetupAsync().GetAwaiter().GetResult();
         }
-
+            
         private async Task SetupAsync()
         {
             if (_cosmosOptions.NeedCreateIfExist)
@@ -52,7 +52,7 @@ namespace AzureCosmosContext
             Database = await _cosmosClient.CreateDatabaseIfNotExistsAsync(_cosmosOptions.DatabaseId, _cosmosOptions.DefaultThroughput);
 
             var throughputResponse = await Database.ReadThroughputAsync();
-            _logger.LogInformation($"Database:{Database.Id}; throughput:{ConvertThroughputLogString(throughputResponse.Resource.Throughput)}");
+            _logger.LogInformation($"Database:{Database.Id}; throughput:{ConvertThroughputLogString(throughputResponse)}");
 
             await _cosmosOptions.CosmosContainerOptions
                 .Select(async op => await CreateContainerIfNotExistsAsync(op))
@@ -65,7 +65,7 @@ namespace AzureCosmosContext
             Container container = await Database.CreateContainerIfNotExistsAsync(options.ToContainerProperties());
             var throughputResponse = await container.ReadThroughputAsync();
 
-            _logger.LogInformation($"Container:{container.Id}; throughput:{ConvertThroughputLogString(throughputResponse?.Resource?.Throughput)}");
+            _logger.LogInformation($"Container:{container.Id}; throughput:{ConvertThroughputLogString(throughputResponse)}");
         }
 
         private async Task CacheDatabaseAsync()
@@ -83,7 +83,7 @@ namespace AzureCosmosContext
 
         private async Task CacheContainersAsync()
         {
-            var iterator = Database.GetContainerIterator();
+            var iterator = Database.GetContainerQueryIterator<ContainerProperties>();
 
             while (iterator.HasMoreResults)
             {

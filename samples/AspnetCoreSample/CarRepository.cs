@@ -23,20 +23,20 @@ namespace AspnetCoreSample
 
         public async Task RegisterAsync(Car car)
         {
-            await CreateItemAsync(car.AgencyId, car);
+            await CreateItemAsync(car.CarCategory, car);
             _logger.LogTrace($"registered car. (ID: {car.Id}; Agency: {car.AgencyId};)");
 
         }
 
         public async Task UpdateAsync(Car car)
         {
-            await UpdateItemAsync(car.AgencyId, car.Id, car);
+            await UpdateItemAsync(car.CarCategory, car.Id, car);
         }
 
         public async Task<IEnumerable<Car>> GetCarsByCarCategoryAsync(string carCategory)
         {
-            var query = new CosmosSqlQueryDefinition("select * from cars c where c.carCategory = @carCategory ")
-                .UseParameter("@carCategory", carCategory);
+            var query = new QueryDefinition("select * from cars c where c.carCategory = @carCategory ")
+                .WithParameter("@carCategory", carCategory);
 
             return await GetItemsAsync<Car>(query);
         }

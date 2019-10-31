@@ -1,18 +1,16 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using AzureCosmosContext.Extensions;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Threading.Tasks;
-using AzureCosmosContext.Extensions;
-using Newtonsoft.Json;
 
 namespace AzureCosmosContext
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     ///<remarks>
     /// CosmosRepositoryCore クラスでは1 Database, N Container を管理し、
@@ -29,10 +27,10 @@ namespace AzureCosmosContext
         private readonly ILogger _logger;
 
         private Container _containerInstance;
-        private Container Container => _containerInstance ?? (_containerInstance = _context.Containers[ContainerId]);
+        private Container Container => _containerInstance ??= _context.Containers[ContainerId];
+
 
         public abstract string ContainerId { get; }
-
 
         protected CosmosRepositoryCore(CosmosContext context, ILogger logger)
         {
@@ -40,7 +38,7 @@ namespace AzureCosmosContext
             _logger = logger;
         }
 
-        #endregion
+        #endregion Variables/Constructors
 
         #region Create
 
@@ -51,12 +49,11 @@ namespace AzureCosmosContext
         /// <param name="partitionKey"></param>
         /// <param name="item"></param>
         /// <returns></returns>
-        protected virtual async Task CreateItemAsync<TItem>(object partitionKey, TItem item)
+        protected virtual async Task CreateItemAsync<TItem>(string partitionKey, TItem item)
         {
             try
             {
                 var response = await Container.CreateItemAsync(item, new PartitionKey(partitionKey));
-                LogRequestCharge(response);
             }
             catch (CosmosException e)
             {
@@ -68,10 +65,9 @@ namespace AzureCosmosContext
             }
         }
 
-        #endregion
+        #endregion Create
 
         #region Read/Query
-
 
         /// <summary>
         /// Get a Item by Id
@@ -80,10 +76,9 @@ namespace AzureCosmosContext
         /// <param name="partitionKey"></param>
         /// <param name="itemId"></param>
         /// <returns></returns>
-        protected virtual async Task<TItem> GetItemByIdAsync<TItem>(object partitionKey, string itemId)
+        protected virtual async Task<TItem> GetItemByIdAsync<TItem>(string partitionKey, string itemId)
         {
             var response = await Container.ReadItemAsync<TItem>(itemId, new PartitionKey(partitionKey));
-            LogRequestCharge(response);
 
             return response.Resource;
         }
@@ -98,7 +93,7 @@ namespace AzureCosmosContext
         /// <param name="maxBufferedItemCount"></param>
         /// <param name="partitionKey"></param>
         /// <returns></returns>
-        protected virtual async Task<IEnumerable<TItem>> GetItemsAsync<TItem>(QueryDefinition query, int maxConcurrency = 1, int maxItemCount = 10, int maxBufferedItemCount = 10, object partitionKey = null)
+        protected virtual async Task<IEnumerable<TItem>> GetItemsAsync<TItem>(QueryDefinition query, int maxConcurrency = 1, int maxItemCount = 10, int maxBufferedItemCount = 10, string partitionKey = null)
         {
             // TODO: method argument's default value's definition....move to appsettings?
 
@@ -109,24 +104,7 @@ namespace AzureCosmosContext
                 MaxItemCount = maxItemCount
             }.AddPartitionKey(partitionKey);
 
-            var set = Container.GetItemQueryIterator<TItem>(query, requestOptions: queryRequestOptions);
-
-            var items = new List<TItem>();
-            var activeIds = new List<string>();
-            var requestCharges = new List<double>();
-
-            while (set.HasMoreResults)
-            {
-                var feedResponse = await set.ReadNextAsync();
-                items.AddRange(feedResponse);
-
-                activeIds.Add(feedResponse.ActivityId);
-                requestCharges.Add(feedResponse.RequestCharge);
-            }
-
-            LogRequestCharge(activeIds, requestCharges);
-
-            return items;
+            return await Container.GetItemQueryIterator<TItem>(query, requestOptions: queryRequestOptions).ToListAsync();
         }
 
         /// <summary>
@@ -141,7 +119,7 @@ namespace AzureCosmosContext
             throw new NotImplementedException();
         }
 
-        #endregion
+        #endregion Read/Query
 
         #region update/upsert
 
@@ -155,8 +133,7 @@ namespace AzureCosmosContext
         /// <returns></returns>
         protected virtual async Task UpdateItemAsync<TItem>(string partitionKey, string itemId, TItem item)
         {
-            var response = await Container.ReplaceItemAsync(item, itemId, new PartitionKey(partitionKey));
-            LogRequestCharge(response);
+            await Container.ReplaceItemAsync(item, itemId, new PartitionKey(partitionKey));
         }
 
         /// <summary>
@@ -166,13 +143,12 @@ namespace AzureCosmosContext
         /// <param name="partitionKey"></param>
         /// <param name="item"></param>
         /// <returns></returns>
-        protected virtual async Task UpsertItemAsync<TItem>(object partitionKey, TItem item)
+        protected virtual async Task UpsertItemAsync<TItem>(string partitionKey, TItem item)
         {
-            var response = await Container.UpsertItemAsync(item, new PartitionKey(partitionKey));
-            LogRequestCharge(response);
+            await Container.UpsertItemAsync(item, new PartitionKey(partitionKey));
         }
 
-        #endregion
+        #endregion update/upsert
 
         #region Delete
 
@@ -183,38 +159,11 @@ namespace AzureCosmosContext
         /// <param name="partitionKey"></param>
         /// <param name="itemId"></param>
         /// <returns></returns>
-        protected virtual async Task DeleteItemAsync<TItem>(object partitionKey, string itemId)
+        protected virtual async Task DeleteItemAsync<TItem>(string partitionKey, string itemId)
         {
-            var response = await Container.DeleteItemAsync<TItem>(itemId, new PartitionKey(partitionKey));
-            LogRequestCharge(response);
+            await Container.DeleteItemAsync<TItem>(itemId, new PartitionKey(partitionKey));
         }
 
-        #endregion
-
-        #region RequetCharge logging
-
-
-        private void LogRequestCharge<TItem>(ItemResponse<TItem> response)
-        {
-            // 暫定で、とりあえずログ出してるのみ。
-            // TODO: App Insights の custom metric に組み込むとか、呼び出しのメソッド名出すとか？もしくはメソッドコール時にログ出して App insights のタイムラインで確認する？
-            _logger.LogInformation("Request Charge log: {DatabaseId}.{ContainerId};  ActivityId:{ActivityId}; RC: {RequestCharge};", _context.Database.Id, ContainerId, response.ActivityId, response.RequestCharge);
-        }
-
-        private void LogRequestCharge(IEnumerable<string> activeIds, IEnumerable<double> requestCharges)
-        {
-            // QueryDefinition から queryText が取得できない！なんで "Query" は private readonly Property なんだ？
-            _logger.LogInformation("Request Charge log: {DatabaseId}.{ContainerId};  Total RC: {RequestCharge};", _context.Database.Id, ContainerId, requestCharges.Sum());
-            _logger.LogInformation("Request Charge log - detail: ActiveIds: {activeIds}", JsonConvert.SerializeObject(activeIds));
-            _logger.LogInformation("Request Charge log - detail: requestCharges: {activeIds}", JsonConvert.SerializeObject(requestCharges));
-        }
-
-        protected async Task UpdateDatabaseRequestCharge(int throughput)
-        {
-            // TODO
-            await _context.Database.ReplaceThroughputAsync(throughput);
-        }
-
-        #endregion
+        #endregion Delete
     }
 }

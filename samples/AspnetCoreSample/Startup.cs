@@ -19,7 +19,7 @@ namespace AspnetCoreSample
         public void ConfigureServices(IServiceCollection services)
         {
             //HACK for CosmosContext
-            services.AddCosmosContext(Configuration);
+            services.AddCosmosContextForAspnetCore(Configuration);
             services.AddSingleton<ICarRepository, CarRepository>();
 
 

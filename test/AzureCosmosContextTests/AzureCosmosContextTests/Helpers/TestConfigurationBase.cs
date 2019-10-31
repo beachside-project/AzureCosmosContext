@@ -20,36 +20,31 @@ namespace AzureCosmosContextTests.Helpers
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-
-            //ServiceCollection.AddSingleton<ILogger>(NullLogger.Instance);
             ServiceCollection.AddSingleton<ILogger<CosmosContext>>(NullLogger<CosmosContext>.Instance);
-
+            ServiceCollection.AddSingleton<ILogger<RequestChargeTrackRequestHandler>>(NullLogger<RequestChargeTrackRequestHandler>.Instance);
+            ServiceCollection.AddCosmosContextForGenericHost(Configuration);
         }
 
         #region GC
 
-        bool _disposed = false;
+        bool _disposed;
+
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        // Protected implementation of Dispose pattern.
         protected virtual void Dispose(bool disposing)
         {
-            if (_disposed)
-                return;
+            if (_disposed) return;
 
             if (disposing)
             {
                 Configuration = null;
                 ServiceCollection = null;
-                //
             }
 
-            // Free any unmanaged objects here.
-            //
             _disposed = true;
         }
 
@@ -57,7 +52,7 @@ namespace AzureCosmosContextTests.Helpers
         {
             Dispose(false);
         }
-                
+
         #endregion
     }
 }

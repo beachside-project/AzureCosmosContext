@@ -38,7 +38,7 @@ namespace ConsoleAppSample
 
         public async Task<IEnumerable<Item>> GetItemAllAsync()
         {
-            var query = new CosmosSqlQueryDefinition("select * from t ");
+            var query = new QueryDefinition("select * from t ");
             //.UseParameter("@account", "12345");
 
             return await GetItemsAsync<Item>(query);

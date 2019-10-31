@@ -35,8 +35,8 @@ namespace FunctionsV2Sample
 
         public async Task<IEnumerable<Car>> GetCarsByCarCategoryAsync(string carCategory)
         {
-            var query = new CosmosSqlQueryDefinition("select * from cars c where c.carCategory = @carCategory ")
-                .UseParameter("@carCategory", carCategory);
+            var query = new QueryDefinition("select * from cars c where c.carCategory = @carCategory ")
+                .WithParameter("@carCategory", carCategory);
 
             return await GetItemsAsync<Car>(query);
         }

@@ -1,16 +1,11 @@
-﻿using AzureCosmosContextTests.Helpers;
-using Microsoft.Win32.SafeHandles;
-using System;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using AzureCosmosContext;
-using AzureCosmosContext.Options;
+﻿using AzureCosmosContext;
+using AzureCosmosContextTests.Helpers;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace AzureCosmosContextTests.EmulatorTests
@@ -19,44 +14,28 @@ namespace AzureCosmosContextTests.EmulatorTests
     {
         #region setup
 
-        private readonly ServiceProvider _serviceProvider;
-        private readonly CosmosContext _cosmosContext;
+        private ServiceProvider _serviceProvider;
+        private CosmosContext _cosmosContext;
 
-        public ContainerTests() 
+        public ContainerTests()
         {
-            //DI のセットアップ
-            ServiceCollection.AddCosmosContext(Configuration);
-
-            // database / container を作成する
-
-
-
-
             _serviceProvider = ServiceCollection.BuildServiceProvider();
             _cosmosContext = _serviceProvider.GetService<CosmosContext>();
-
         }
 
         private bool _disposed;
-        private readonly SafeHandle _handle = new SafeFileHandle(IntPtr.Zero, true);
 
         protected override void Dispose(bool disposing)
         {
-            if (_disposed)
-                return;
+            if (_disposed) return;
 
             if (disposing)
             {
-                _handle.Dispose();
-                // Free any other managed objects here.
-                //
+                _cosmosContext = null;
+                _serviceProvider = null;
             }
 
-            // Free any unmanaged objects here.
-            //
-
             _disposed = true;
-            // Call base class implementation.
             base.Dispose(disposing);
         }
 
@@ -75,18 +54,17 @@ namespace AzureCosmosContextTests.EmulatorTests
         [Fact]
         public async Task DatabaseThroughputShouldSetCorrectly()
         {
-            var throughputResponse = await _cosmosContext.Database.ReadThroughputAsync();
-            var actual = throughputResponse.Resource.Throughput;
+            var actual = await _cosmosContext.Database.ReadThroughputAsync();
 
             actual.Should().Be(500);
         }
 
         [Fact]
-        public async Task ContainerShoudSetupCorrectly()
+        public async Task ContainerShouldSetupCorrectly()
         {
             var containersCount = _cosmosContext.Containers.Count;
-            var existsCarContainer = _cosmosContext.Containers.TryGetValue("car",out var carContainer);
-            var existsItemContainer = _cosmosContext.Containers.TryGetValue("item",out var itemContainer);
+            var existsCarContainer = _cosmosContext.Containers.TryGetValue("car", out var carContainer);
+            var existsItemContainer = _cosmosContext.Containers.TryGetValue("item", out var itemContainer);
 
             // container assertion
             containersCount.Should().Be(2);
@@ -99,10 +77,8 @@ namespace AzureCosmosContextTests.EmulatorTests
             carProperties.PartitionKeyPath.Should().Be("/carCategory");
             carProperties.UniqueKeyPolicy.UniqueKeys.Count.Should().Be(0);
 
-
             // item container assertion
             ContainerProperties itemProperties = await itemContainer.ReadContainerAsync();
-
 
             itemProperties.PartitionKeyPath.Should().Be("/color");
             var itemUniqueKey = itemProperties.UniqueKeyPolicy.UniqueKeys.First().Paths.First();

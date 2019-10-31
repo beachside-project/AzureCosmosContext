@@ -25,13 +25,9 @@ namespace AzureCosmosContext
                     return (T)(object)stream;
                 }
 
-                using (var sr = new StreamReader(stream))
-                {
-                    using (var jsonTextReader = new JsonTextReader(sr))
-                    {
-                        return _serializer.Deserialize<T>(jsonTextReader);
-                    }
-                }
+                using var sr = new StreamReader(stream);
+                using var jsonTextReader = new JsonTextReader(sr);
+                return _serializer.Deserialize<T>(jsonTextReader);
             }
         }
 
@@ -40,13 +36,14 @@ namespace AzureCosmosContext
             var streamPayload = new MemoryStream();
             using (var streamWriter = new StreamWriter(streamPayload, Encoding.Default, BufferSize, leaveOpen: true))
             {
-                using (JsonWriter writer = new JsonTextWriter(streamWriter))
+                using JsonWriter writer = new JsonTextWriter(streamWriter)
                 {
-                    writer.Formatting = Formatting.None;
-                    _serializer.Serialize(writer, input);
-                    writer.Flush();
-                    streamWriter.Flush();
-                }
+                    Formatting = Formatting.None
+                };
+
+                _serializer.Serialize(writer, input);
+                writer.Flush();
+                streamWriter.Flush();
             }
 
             streamPayload.Position = 0;
